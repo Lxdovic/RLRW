@@ -11,17 +11,19 @@ namespace RLReplayWatcher.ui;
 internal static class Ui {
     internal static void Render() {
         rlImGui.Begin();
+
+        ImGui.ShowDemoWindow();
+        
         Raylib.BeginDrawing();
 
         ImGui.PushFont(Theme.Fonts["Poppins-Regular"]);
 
         ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(Raylib.GetScreenWidth(), Raylib.GetScreenHeight()), ImGuiCond.Always);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
+        
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0, 0));
         ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0);
-
-        ImGui.ShowDemoWindow();
-
+        
         ImGui.Begin("RLRW", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
                             ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollbar |
                             ImGuiWindowFlags.NoScrollWithMouse |
@@ -41,8 +43,8 @@ internal static class Ui {
         
         ImGui.EndChild();
         ImGui.SameLine();
-        ImGui.BeginChild("Scene", new Vector2(ImGui.GetColumnWidth() / 2, ImGui.GetWindowHeight()),
-            ImGuiChildFlags.AlwaysUseWindowPadding | ImGuiChildFlags.ResizeX);
+        ImGui.BeginChild("Scene", new Vector2(ImGui.GetColumnWidth(), ImGui.GetWindowHeight()),
+            ImGuiChildFlags.AlwaysUseWindowPadding);
 
         Program.Scene?.Update();
         Program.Scene?.Render();

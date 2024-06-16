@@ -29,7 +29,7 @@ internal sealed class Scene {
         Raylib.BeginTextureMode(ViewTexture);
         Raylib.ClearBackground(Color.Green);
         Raylib.BeginMode3D(Camera);
-        Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(50, 50), Color.Beige); // simple world plane
+        Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(50, 50), Color.Beige);
 
         Raylib.EndMode3D();
         Raylib.EndTextureMode();
