@@ -6,29 +6,31 @@ using rlImGui_cs;
 namespace RLReplayWatcher.ui.scene;
 
 internal sealed class Scene {
-    internal Camera3D Camera;
-    internal bool IsGrabbed;
-    internal RenderTexture2D ViewTexture;
+    private readonly RenderTexture2D _viewTexture;
+    private Camera3D _camera;
 
     internal Scene() {
-        ViewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        _viewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
-        Camera.FovY = 45;
-        Camera.Up.Y = 1;
-        Camera.Position.Y = 3;
-        Camera.Position.Z = -25;
+        _camera.FovY = 45;
+        _camera.Up.Y = 1;
+        _camera.Position.Y = 3;
+        _camera.Position.Z = -25;
     }
 
     internal void Render() {
-        rlImGui.ImageRenderTextureFit(ViewTexture);
+        rlImGui.ImageRenderTexture(_viewTexture);
+        
+        if (ImGui.IsItemClicked()) Raylib.DisableCursor();
+        if (Raylib.IsKeyPressed(KeyboardKey.Escape)) Raylib.EnableCursor();
     }
 
     internal void Update() {
-        if (IsGrabbed) HandleControls();
+        if (Raylib.IsCursorHidden()) HandleControls();
 
-        Raylib.BeginTextureMode(ViewTexture);
+        Raylib.BeginTextureMode(_viewTexture);
         Raylib.ClearBackground(Color.Green);
-        Raylib.BeginMode3D(Camera);
+        Raylib.BeginMode3D(_camera);
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(50, 50), Color.Beige);
 
         Raylib.EndMode3D();
@@ -36,16 +38,10 @@ internal sealed class Scene {
     }
 
     private void HandleControls() {
-        Raylib.UpdateCamera(ref Camera, CameraMode.FirstPerson);
-
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left)) IsGrabbed = true;
-        if (Raylib.IsKeyPressed(KeyboardKey.Escape)) IsGrabbed = false;
-        
-        if (IsGrabbed) Raylib.DisableCursor();
-        if (!IsGrabbed) Raylib.EnableCursor();
+        Raylib.UpdateCamera(ref _camera, CameraMode.FirstPerson);
     }
 
     internal void Unload() {
-        Raylib.UnloadRenderTexture(ViewTexture);
+        Raylib.UnloadRenderTexture(_viewTexture);
     }
 }
