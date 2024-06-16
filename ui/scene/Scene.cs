@@ -19,7 +19,7 @@ internal sealed class Scene {
     }
 
     internal void Render() {
-        rlImGui.ImageRenderTexture(_viewTexture);
+        rlImGui.ImageRenderTextureFit(_viewTexture, false);
         
         if (ImGui.IsItemClicked()) Raylib.DisableCursor();
         if (Raylib.IsKeyPressed(KeyboardKey.Escape)) Raylib.EnableCursor();
@@ -29,7 +29,7 @@ internal sealed class Scene {
         if (Raylib.IsCursorHidden()) HandleControls();
 
         Raylib.BeginTextureMode(_viewTexture);
-        Raylib.ClearBackground(Color.Green);
+        Raylib.ClearBackground(Color.SkyBlue);
         Raylib.BeginMode3D(_camera);
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(50, 50), Color.Beige);
 
