@@ -3,8 +3,8 @@ using ImGuiNET;
 using NativeFileDialogSharp;
 using Raylib_cs;
 using rlImGui_cs;
+using RLReplayWatcher.replayHelper;
 using RLReplayWatcher.ui.scene;
-using RocketLeagueReplayParser;
 
 namespace RLReplayWatcher.ui;
 
@@ -37,7 +37,7 @@ internal static class Ui {
         if (ImGui.Button("Parse")) {
             var result = Dialog.FileOpen("replay");
 
-            Program.Replay = Replay.Deserialize(result.Path);
+            Program.Replay = ReplayHelper.Parse(result.Path);
             Program.Scene = new Scene();
         }
 
