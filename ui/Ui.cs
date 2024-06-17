@@ -77,8 +77,6 @@ internal static class Ui {
         for (var i = 0; i < Program.Replay?.Frames[_frameIndex].ActorStates.Count; i++) {
             var actor = Program.Replay.Frames[_frameIndex].ActorStates[i];
             
-            if (actor.State != ActorStateState.Deleted) continue;
-
             if (ImGui.CollapsingHeader($"{i}")) {
                 ImGui.SeparatorText("Ids");
 

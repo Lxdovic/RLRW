@@ -2,6 +2,7 @@ using System.Numerics;
 using ImGuiNET;
 using Raylib_cs;
 using rlImGui_cs;
+using RLReplayWatcher.replayActors;
 
 namespace RLReplayWatcher.ui.scene;
 
@@ -14,8 +15,8 @@ internal sealed class Scene {
 
         _camera.FovY = 45;
         _camera.Up.Y = 1;
-        _camera.Position.Y = 3;
-        _camera.Position.Z = -25;
+        _camera.Position.Y = 10;
+        _camera.Position.Z = 10;
     }
 
     internal void Render() {
@@ -32,14 +33,27 @@ internal sealed class Scene {
         Raylib.ClearBackground(Color.SkyBlue);
         Raylib.BeginMode3D(_camera);
 
-        Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(50, 50), Color.Beige);
+        foreach (var key in Program.Game?.Objects.Keys!) {
+            Program.Game.Objects.TryGetValue(key, out var obj);
+            
+            if (obj is Car car) {
+                Raylib.DrawCube(new Vector3(car.Position.X / 100, car.Position.Y / 100, car.Position.Z / 100), 1, 1, 1, Color.Red);
+            }
+
+            if (obj is Ball ball) {
+                Raylib.DrawSphere(new Vector3(ball.Position.X / 100, ball.Position.Y / 100, ball.Position.Z / 100), 1, Color.Gold);}
+        }
+        
+        Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);
 
         Raylib.EndMode3D();
         Raylib.EndTextureMode();
+
+        Program.Game.TryNextFrame(Raylib.GetTime());
     }
 
     private void HandleControls() {
-        Raylib.UpdateCamera(ref _camera, CameraMode.FirstPerson);
+        Raylib.UpdateCamera(ref _camera, CameraMode.Free);
     }
 
     internal void Unload() {
