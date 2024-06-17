@@ -10,15 +10,15 @@ internal static class ReplayHelper {
         if (actorId == null || replay == null) return null;
 
         return (string)replay.Names.GetValue((int)actorId)!;
-    } 
+    }
     
     public static ClassIndex? GetClass(Replay? replay, ActorState? actor) {
         return replay?.ClassIndexes.Find(x => x.Index == actor?.ClassId);
     }
 
-    public static CoreObject Parse(string path) {
+    public static Replay Parse(string path) {
         var replay = Replay.Deserialize(path);
 
-        return new CoreObject(replay);
+        return replay;
     }
 }
