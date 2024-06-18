@@ -37,11 +37,11 @@ internal sealed class Scene {
             Program.Game.Objects.TryGetValue(key, out var obj);
             
             if (obj is Car car) {
-                Raylib.DrawCube(new Vector3(car.Position.X / 100, car.Position.Y / 100, car.Position.Z / 100), 1, 1, 1, Color.Red);
+                Raylib.DrawCube(car.Position / 100, 1, 1, 1, Color.Red);
             }
 
             if (obj is Ball ball) {
-                Raylib.DrawSphere(new Vector3(ball.Position.X / 100, ball.Position.Y / 100, ball.Position.Z / 100), 1, Color.Gold);}
+                Raylib.DrawSphere(ball.Position / 100, 1, Color.Gold);}
         }
         
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);

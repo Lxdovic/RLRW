@@ -1,17 +1,18 @@
+using System.Numerics;
 using RLReplayWatcher.replayHelper;
 using RocketLeagueReplayParser;
 using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Ball(int id, Vector3D position) {
+internal sealed class Ball(int id, Vector3 position) {
     public int Id { get; set; } = id;
-    public Vector3D Position { get; set; } = position;
+    public Vector3 Position { get; set; } = position;
 }
 
-internal sealed class Car(int id, Vector3D position) {
+internal sealed class Car(int id, Vector3 position) {
     public int Id { get; set; } = id;
-    public Vector3D Position { get; set; } = position;
+    public Vector3 Position { get; set; } = position;
 }
 
 internal sealed class Game {
@@ -39,10 +40,10 @@ internal sealed class Game {
 
                 switch (className) {
                     case "TAGame.Ball_TA":
-                        Objects.TryAdd(actorId, new Ball(actorId, actor.Position));
+                        Objects.TryAdd(actorId, new Ball(actorId, new Vector3(actor.Position.X, actor.Position.Z,actor.Position.Y)));
                         break;
                     case "TAGame.Car_TA":
-                        Objects.TryAdd(actorId, new Car(actorId, actor.Position));
+                        Objects.TryAdd(actorId, new Car(actorId, new Vector3(actor.Position.X, actor.Position.Z,actor.Position.Y)));
                         break;
                 }
             }
@@ -53,7 +54,7 @@ internal sealed class Game {
                     foreach (var (_, property) in actor.Properties) {
                         if (property.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState") {
                             var data = (RigidBodyState)property.Data;
-                            ball.Position = new Vector3D(data.Position.X, data.Position.Z, data.Position.Y);
+                            ball.Position = new Vector3(data.Position.X, data.Position.Z,data.Position.Y);
                         }
                     }
                 }
@@ -62,7 +63,7 @@ internal sealed class Game {
                     foreach (var (_, property) in actor.Properties) {
                         if (property.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState") {
                             var data = (RigidBodyState)property.Data;
-                            car.Position = new Vector3D(data.Position.X, data.Position.Z, data.Position.Y);
+                            car.Position = new Vector3(data.Position.X, data.Position.Z,data.Position.Y);
                         }
                     }
                 }
