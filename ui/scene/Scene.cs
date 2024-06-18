@@ -37,7 +37,13 @@ internal sealed class Scene {
             Program.Game.Objects.TryGetValue(key, out var obj);
             
             if (obj is Car car) {
-                Raylib.DrawCube(car.Position / 100, 1, 1, 1, Color.Red);
+                var color = car.TeamPaint.TeamNumber switch {
+                    0 => Color.Blue,
+                    1 => Color.Orange,
+                    _ => Color.White
+                };
+                
+                Raylib.DrawCube(car.Position / 100, 1, 1, 1, color);
             }
 
             if (obj is Ball ball) {
