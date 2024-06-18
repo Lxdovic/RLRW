@@ -23,8 +23,9 @@ internal sealed class Ball(int id, Vector3 position) {
 
 internal sealed class Car(int id, Vector3 position) {
     public int Id { get; set; } = id;
-    public TeamPaint TeamPaint { get; set; } = new();
     public Vector3 Position { get; set; } = position;
+    public ActiveActor? PlayerActor { get; set; }
+    public TeamPaint? TeamPaint { get; set; }
 }
 
 internal sealed class Game {
@@ -59,9 +60,9 @@ internal sealed class Game {
                         Objects.TryAdd(actorId,
                             new Car(actorId, new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y)));
                         break;
-                    // case "TAGame.PRI_TA":
-                    //     Objects.TryAdd(actorId, new Player(actorId));
-                    //     break;
+                    case "TAGame.PRI_TA":
+                        Objects.TryAdd(actorId, new Player(actorId));
+                        break;
                 }
             }
 
@@ -84,19 +85,24 @@ internal sealed class Game {
                         if (property.PropertyName == "TAGame.Car_TA:TeamPaint") {
                             car.TeamPaint = (TeamPaint)property.Data;
                         }
+                        
+                        if (property.PropertyName == "Engine.Pawn:PlayerReplicationInfo") {
+                            car.PlayerActor = (ActiveActor)property.Data;
+                        }
                     }
 
-                    // if (obj is Player player) {
-                    //     switch (property.PropertyName) {
-                    //         case "Engine.PlayerReplicationInfo:PlayerName":
-                    //             player.Name = (string)property.Data;
-                    //             break;
-                    //
-                    //         // case "Engine.PlayerReplicationInfo:Team":
-                    //         //     player.Team = (int)property.Data;
-                    //         //     break;
-                    //     }
-                    // }
+                    if (obj is Player player) {
+                        
+                        switch (property.PropertyName) {
+                            case "Engine.PlayerReplicationInfo:PlayerName":
+                                player.Name = (string)property.Data;
+                                break;
+                    
+                            // case "Engine.PlayerReplicationInfo:Team":
+                            //     player.Team = (int)property.Data;
+                            //     break;
+                        }
+                    }
                 }
             }
             
