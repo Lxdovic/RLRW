@@ -21,7 +21,7 @@ internal sealed class Game {
     private int FrameIndex { get; set; }
 
     public void TryNextFrame(double time) {
-        if (FrameIndex >= Replay.Frames.Count || FrameIndex < 0) return;
+        if (FrameIndex >= Replay.Frames.Count - 1 || FrameIndex < 0) return;
 
         if (Replay.Frames[FrameIndex].Time < time) FrameIndex++;
 
