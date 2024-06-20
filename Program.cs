@@ -15,7 +15,7 @@ internal class Program {
     internal static GameManager? Game;
 
     private static void Main(string[] args) {
-        Raylib.SetWindowState(ConfigFlags.ResizableWindow);
+        Raylib.SetWindowState(ConfigFlags.ResizableWindow | ConfigFlags.Msaa4xHint);
         Raylib.InitWindow(ScreenWidth, ScreenHeight, "RLRW");
 
         Theme.SetupFonts();

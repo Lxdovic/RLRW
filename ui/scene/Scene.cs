@@ -12,6 +12,7 @@ internal sealed class Scene {
 
     internal Scene() {
         _viewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        Raylib.SetTextureFilter(_viewTexture.Texture, TextureFilter.Bilinear);
 
         _camera.FovY = 45;
         _camera.Up.Y = 1;
