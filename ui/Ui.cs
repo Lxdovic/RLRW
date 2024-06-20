@@ -6,7 +6,6 @@ using rlImGui_cs;
 using RLReplayWatcher.replayActors;
 using RLReplayWatcher.replayHelper;
 using RLReplayWatcher.ui.scene;
-using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.ui;
 
@@ -16,7 +15,7 @@ internal static class Ui {
     private static int _objId;
     private static int _nameId;
     private static string _notes = "";
-    
+
     internal static void Render() {
         rlImGui.Begin();
 
@@ -50,7 +49,7 @@ internal static class Ui {
 
             Program.Replay = ReplayHelper.Parse(_path);
             Program.Scene = new Scene();
-            Program.Game = new Game(Program.Replay);
+            Program.Game = new GameManager(Program.Replay);
         }
 
         ImGui.InputTextMultiline("Notes", ref _notes, 1000, new Vector2(ImGui.GetColumnWidth(), 100));
@@ -62,21 +61,21 @@ internal static class Ui {
 
         Program.Scene?.Update();
         Program.Scene?.Render();
-        
+
         ImGui.InputInt("Object Id", ref _objId);
         ImGui.InputInt("Name Id", ref _nameId);
-        
-        _nameId =Math.Clamp(_nameId, 0, Program.Replay?.Names.Length - 1 ?? 0);
+
+        _nameId = Math.Clamp(_nameId, 0, Program.Replay?.Names.Length - 1 ?? 0);
         _objId = Math.Clamp(_objId, 0, Program.Replay?.Objects.Length - 1 ?? 0);
-        
+
         ImGui.Text($"Object: {Program.Replay?.Objects[_objId]}");
         ImGui.Text($"Name: {Program.Replay?.Names[_nameId]}");
-        
+
         ImGui.InputInt("Frame Index", ref _frameIndex);
-        
+
         for (var i = 0; i < Program.Replay?.Frames[_frameIndex].ActorStates.Count; i++) {
             var actor = Program.Replay.Frames[_frameIndex].ActorStates[i];
-            
+
             if (ImGui.CollapsingHeader($"{i}")) {
                 ImGui.SeparatorText("Ids");
 
@@ -86,13 +85,11 @@ internal static class Ui {
                 ImGui.Text($"ClassId {actor.ClassId}");
 
                 ImGui.SeparatorText("Properties");
-                
+
                 ImGui.Text($"Name?: {ReplayHelper.GetName(Program.Replay, actor)}");
                 ImGui.Text($"Class?: {ReplayHelper.GetClass(Program.Replay, actor)?.Class}");
 
-                foreach (var (_, prop) in actor.Properties) {
-                    ImGui.Text($"{prop.PropertyName}: {prop.Data}");
-                }
+                foreach (var (_, prop) in actor.Properties) ImGui.Text($"{prop.PropertyName}: {prop.Data}");
 
                 ImGui.SeparatorText("Other Props");
 
@@ -104,7 +101,7 @@ internal static class Ui {
         }
 
         ImGui.EndChild();
-        
+
         ImGui.End();
 
         ImGui.PopFont();

@@ -1,59 +1,53 @@
-using System.Numerics;
-using RLReplayWatcher.replayHelper;
-using RocketLeagueReplayParser;
 using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Team(int id) {
-    public int Id { get; set; } = id;
-    public string Name { get; set; } = "";
-}
+internal sealed class Game : GameEntity {
+    public uint GamePlaylist { get; set; }
+    public ObjectTarget? GameClass { get; set; }
+    public string? ServerName { get; set; }
+    public string? MatchGuid { get; set; }
+    public bool GameStarted { get; set; }
+    public string? GameServerId { get; set; }
+    public List<Reservation> Reservations { get; set; } = [];
+    public string? ServerRegion { get; set; }
+    public int GameMutatorIndex { get; set; }
 
-internal sealed class Game {
-    public Dictionary<int, GameEntity> Objects = [];
 
-    public Game(Replay replay) {
-        Replay = replay;
-    }
+    public override void HandleGameEvents(ActorStateProperty property) {
+        switch (property.PropertyName) {
+            case "ProjectX.GRI_X:ReplicatedGamePlaylist":
+                GamePlaylist = (uint)property.Data;
+                break;
+            case "Engine.GameReplicationInfo:GameClass":
+                GameClass = (ObjectTarget)property.Data;
+                break;
+            case "Engine.GameReplicationInfo:ServerName":
+                ServerName = (string)property.Data;
+                break;
+            case "ProjectX.GRI_X:MatchGuid":
+                MatchGuid = (string)property.Data;
+                break;
+            case "ProjectX.GRI_X:bGameStarted":
+                GameStarted = (bool)property.Data;
+                break;
+            case "ProjectX.GRI_X:GameServerID":
+                GameServerId = (string)property.Data;
+                break;
+            case "ProjectX.GRI_X:Reservations":
+                Reservations = ((List<object>)property.Data).OfType<Reservation>().ToList();
+                break;
+            case "ProjectX.GRI_X:ReplicatedServerRegion":
+                ServerRegion = (string)property.Data;
+                break;
+            case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
+                GameMutatorIndex = (int)property.Data;
+                break;
 
-    private Replay Replay { get; }
-    private int FrameIndex { get; set; }
-
-    public void TryNextFrame(double time) {
-        if (FrameIndex >= Replay.Frames.Count - 1 || FrameIndex < 0) return;
-
-        if (Replay.Frames[FrameIndex].Time < time) FrameIndex++;
-
-        var frame = Replay.Frames[FrameIndex];
-
-        foreach (var actor in frame.ActorStates) {
-            var actorId = (int)actor.Id;
-
-            if (actor.State == ActorStateState.New) {
-                var className = ReplayHelper.GetClass(Replay, actor)?.Class;
-
-                switch (className) {
-                    case "TAGame.Ball_TA":
-                        Objects.TryAdd(actorId,
-                            new Ball(new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y)));
-                        break;
-                    case "TAGame.Ball_TA:GameEvent": break;
-                    case "TAGame.Car_TA":
-                        Objects.TryAdd(actorId,
-                            new Car(new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y)));
-                        break;
-                    case "TAGame.PRI_TA":
-                        Objects.TryAdd(actorId, new Player());
-                        break;
-                }
-            }
-
-            if (actor.State == ActorStateState.Existing && Objects.TryGetValue(actorId, out var obj))
-                foreach (var (_, property) in actor.Properties)
-                    obj.HandleGameEvents(property);
-
-            if (actor.State == ActorStateState.Deleted && Objects.ContainsKey(actorId)) Objects.Remove(actorId);
+            default:
+                Console.WriteLine(
+                    $"Unhandled property: {property.PropertyName} for object game (TAGame.GRI_TA); data: {property.Data}, type: {property.Data.GetType()}");
+                break;
         }
     }
 }

@@ -12,7 +12,7 @@ internal class Program {
     private const int ScreenWidth = 1280;
     internal static Replay? Replay;
     internal static Scene? Scene;
-    internal static Game? Game;
+    internal static GameManager? Game;
 
     private static void Main(string[] args) {
         Raylib.SetWindowState(ConfigFlags.ResizableWindow);
