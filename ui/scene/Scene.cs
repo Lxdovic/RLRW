@@ -48,6 +48,8 @@ internal sealed class Scene {
                     1 => Color.Orange,
                     _ => Color.White
                 };
+                
+                if (car.Hidden) continue;
 
                 _car.Transform =
                     Matrix4x4.CreateFromQuaternion(car.Rotation) * Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
