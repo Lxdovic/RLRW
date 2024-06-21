@@ -50,11 +50,9 @@ internal sealed class Scene {
                 };
 
                 _car.Transform =
-                    Matrix4x4.CreateFromQuaternion(car.Rotation);
-
-                _car.Transform *= Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
+                    Matrix4x4.CreateFromQuaternion(car.Rotation) * Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
                 
-                Raylib.DrawModelEx(_car, car.Position, new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), color);
+                Raylib.DrawModel(_car, car.Position, 1, color);
 
                 if (car.PlayerActor != null)
                     if (Program.Game.Objects.TryGetValue(car.PlayerActor.ActorId, out var player))
