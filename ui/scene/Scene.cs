@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using Raylib_cs;
 using rlImGui_cs;
@@ -9,6 +10,8 @@ namespace RLReplayWatcher.ui.scene;
 internal sealed class Scene {
     private readonly RenderTexture2D _viewTexture;
     private Camera3D _camera;
+    private Mesh _test = Raylib.GenMeshCube(1, 1, 1);
+    private Matrix4x4 _transform = new();
 
     internal Scene() {
         _viewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
@@ -47,8 +50,13 @@ internal sealed class Scene {
                 };
                 
                 var carPos = new Vector3(car.RigidBody?.Position.X ?? 0, car.RigidBody?.Position.Z ?? 0, car.RigidBody?.Position.Y ?? 0) / 100;
-
-                Raylib.DrawCube(carPos, 1, 1, 1, color);
+                var rotation = (RocketLeagueReplayParser.NetworkStream.Quaternion)car.RigidBody?.Rotation!;
+                var carRotation = new Quaternion(rotation?.X ?? Quaternion.Identity.X, rotation?.Z ?? Quaternion.Identity.Z, rotation?.Y  ?? Quaternion.Identity.Y, rotation?.W  ?? Quaternion.Identity.W);
+                
+                Raylib.DrawMesh(_test, new Material(), Matrix4x4.CreateScale(1, 1, 1) * Matrix4x4.CreateFromQuaternion(carRotation) * Matrix4x4.CreateTranslation(carPos));
+                
+                // Raylib.DrawMesh(_test, new Material(), _transform);
+                // Raylib.DrawCube(carPos, 1, 1, 1, color);
                 
                 if (car.PlayerActor != null) {
                     if (Program.Game.Objects.TryGetValue(car.PlayerActor.ActorId, out var player)) {
