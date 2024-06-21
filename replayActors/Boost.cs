@@ -5,6 +5,7 @@ namespace RLReplayWatcher.replayActors;
 internal sealed class Boost : GameEntity {
     public ActiveActor? Vehicle { get; set; }
     public ReplicatedBoost? ReplicatedBoost { get; set; }
+    public byte Amount { get; set; }
     public byte Active { get; set; }
 
     public override void HandleGameEvents(ActorStateProperty property) {
@@ -18,10 +19,13 @@ internal sealed class Boost : GameEntity {
             case "TAGame.CarComponent_TA:ReplicatedActive":
                 Active = (byte)property.Data;
                 break;
+            case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount":
+                Amount = (byte)property.Data;
+                break;
             
             default:
                 Console.WriteLine(
-                    $"Unhandled property: {property.PropertyName} for object game (TAGame.GRI_TA); data: {property.Data}, type: {property.Data.GetType()}");
+                    $"Unhandled property: {property.PropertyName} for object boost (TAGame.Boost_TA); data: {property.Data}, type: {property.Data.GetType()}");
                 break;
         }
     }

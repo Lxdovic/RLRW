@@ -45,14 +45,16 @@ internal sealed class Scene {
                     1 => Color.Orange,
                     _ => Color.White
                 };
+                
+                var carPos = new Vector3(car.RigidBody?.Position.X ?? 0, car.RigidBody?.Position.Z ?? 0, car.RigidBody?.Position.Y ?? 0) / 100;
 
-                Raylib.DrawCube(car.Position / 100, 1, 1, 1, color);
+                Raylib.DrawCube(carPos, 1, 1, 1, color);
                 
                 if (car.PlayerActor != null) {
                     if (Program.Game.Objects.TryGetValue(car.PlayerActor.ActorId, out var player)) {
                         if (player is Player playerObj) {
                             playerTags.Add((
-                                Raylib.GetWorldToScreen(car.Position / 100 + new Vector3(0, 4, 0), _camera),
+                                Raylib.GetWorldToScreen(carPos + new Vector3(0, 4, 0), _camera),
                                 playerObj.Name));
                         }
                     }
@@ -60,7 +62,10 @@ internal sealed class Scene {
             }
 
             if (obj is Ball ball) {
-                Raylib.DrawSphere(ball.Position / 100, 1, Color.Gold);}
+                var ballPos = new Vector3(ball.RigidBody?.Position.X ?? 0, ball.RigidBody?.Position.Z ?? 0, ball.RigidBody?.Position.Y ?? 0) / 100;
+
+                Raylib.DrawSphere(ballPos, 1, Color.Gold);
+            }
         }
         
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);

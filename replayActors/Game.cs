@@ -13,7 +13,6 @@ internal sealed class Game : GameEntity {
     public string? ServerRegion { get; set; }
     public int GameMutatorIndex { get; set; }
 
-
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "ProjectX.GRI_X:ReplicatedGamePlaylist":

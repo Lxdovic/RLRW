@@ -33,7 +33,7 @@ internal sealed class CameraSettingsActor : GameEntity {
 
             default:
                 Console.WriteLine(
-                    $"Unhandled property: {property.PropertyName} for object game (TAGame.GRI_TA); data: {property.Data}, type: {property.Data.GetType()}");
+                    $"Unhandled property: {property.PropertyName} for object camerasettings (TAGame.CameraSettings); data: {property.Data}, type: {property.Data.GetType()}");
                 break;
         }
     }

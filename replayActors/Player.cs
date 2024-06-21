@@ -24,7 +24,11 @@ internal sealed class Player : GameEntity {
     public ClientLoadoutsOnline? LoadoutsOnline { get; set; }
     public float SteeringSensitivity { get; set; }
     public bool HistoryValid { get; set; }
-
+    public string? CurrentVoiceRoom { get; set; }
+    public byte PawnType { get; set; }
+    public string? RemoteUserData { get; set; }
+    public bool IsDistracted { get; set; }
+    
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "Engine.PlayerReplicationInfo:PlayerName":
@@ -94,10 +98,22 @@ internal sealed class Player : GameEntity {
             case "TAGame.PRI_TA:PlayerHistoryValid":
                 HistoryValid = (bool)property.Data;
                 break;
+            case "TAGame.PRI_TA:CurrentVoiceRoom":
+                CurrentVoiceRoom = (string)property.Data;
+                break;
+            case "TAGame.PRI_TA:PawnType":
+                PawnType = (byte)property.Data;
+                break;
+            case "Engine.PlayerReplicationInfo:RemoteUserData":
+                RemoteUserData = (string)property.Data;
+                break;
+            case "TAGame.PRI_TA:bIsDistracted":
+                IsDistracted = (bool)property.Data;
+                break;
 
             default:
                 Console.WriteLine(
-                    $"Unhandled property: {property.PropertyName} for object player (TAGame.PRI_TA); data: {property.Data}");
+                    $"Unhandled property: {property.PropertyName} for object player (TAGame.PRI_TA); data: {property.Data}, type: {property.Data.GetType()}");
                 break;
         }
     }

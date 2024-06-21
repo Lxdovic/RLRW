@@ -3,8 +3,8 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Car(Vector3 position) : GameEntity {
-    public Vector3 Position { get; set; } = position;
+internal sealed class Car : GameEntity {
+    public RigidBodyState? RigidBody { get; set; }
     public ActiveActor? PlayerActor { get; set; }
     public TeamPaint? TeamPaint { get; set; }
     public float Throttle { get; set; }
@@ -21,8 +21,7 @@ internal sealed class Car(Vector3 position) : GameEntity {
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "TAGame.RBActor_TA:ReplicatedRBState": {
-                var data = (RigidBodyState)property.Data;
-                Position = new Vector3(data.Position.X, data.Position.Z, data.Position.Y);
+                RigidBody = (RigidBodyState)property.Data;
                 break;
             }
             case "Engine.Actor:bCollideActors":

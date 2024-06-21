@@ -3,9 +3,8 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Ball(Vector3 position) : GameEntity {
-    public Vector3 Position { get; set; } = position;
-
+internal sealed class Ball : GameEntity {
+    public RigidBodyState? RigidBody { get; set; }
     public int HitTeamNum { get; set; }
     public bool CollideActors { get; set; }
     public bool BlockActors { get; set; }
@@ -15,8 +14,7 @@ internal sealed class Ball(Vector3 position) : GameEntity {
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "TAGame.RBActor_TA:ReplicatedRBState": {
-                var data = (RigidBodyState)property.Data;
-                Position = new Vector3(data.Position.X, data.Position.Z, data.Position.Y);
+                RigidBody = (RigidBodyState)property.Data;
                 break;
             }
             case "Engine.Actor:bCollideActors":
