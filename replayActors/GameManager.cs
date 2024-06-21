@@ -27,11 +27,11 @@ internal sealed class GameManager(Replay replay) {
                 switch (className) {
                     case "TAGame.Ball_TA":
                         Objects.TryAdd(actorId,
-                            new Ball());
+                            new Ball(actor.Position));
                         break;
                     case "TAGame.Car_TA":
                         Objects.TryAdd(actorId,
-                            new Car());
+                            new Car(actor.Position));
                         break;
                     case "TAGame.PRI_TA":
                         Objects.TryAdd(actorId, new Player());

@@ -3,7 +3,6 @@ using ImGuiNET;
 using Raylib_cs;
 using rlImGui_cs;
 using RLReplayWatcher.replayActors;
-using RLRPQuaternion = RocketLeagueReplayParser.NetworkStream.Quaternion;
 
 namespace RLReplayWatcher.ui.scene;
 
@@ -50,36 +49,23 @@ internal sealed class Scene {
                     _ => Color.White
                 };
 
-                var carPos = new Vector3(car.RigidBody?.Position.X ?? 0, car.RigidBody?.Position.Z ?? 0,
-                    car.RigidBody?.Position.Y ?? 0) / 100;
-                var rotation = (RLRPQuaternion)car.RigidBody?.Rotation!;
-                var carRotation = new Quaternion(
-                    rotation?.X ?? Quaternion.Identity.X,
-                    rotation?.Z ?? Quaternion.Identity.Z,
-                    rotation?.Y ?? Quaternion.Identity.Y,
-                    rotation?.W ?? Quaternion.Identity.W);
-
                 _car.Transform =
-                    Matrix4x4.CreateFromQuaternion(carRotation);
+                    Matrix4x4.CreateFromQuaternion(car.Rotation);
 
                 _car.Transform *= Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
-
-
-                Raylib.DrawModelEx(_car, carPos, new Vector3(-0, 0, 0), 0, new Vector3(1, 1, 1), color);
+                
+                Raylib.DrawModelEx(_car, car.Position, new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), color);
 
                 if (car.PlayerActor != null)
                     if (Program.Game.Objects.TryGetValue(car.PlayerActor.ActorId, out var player))
                         if (player is Player playerObj)
                             playerTags.Add((
-                                Raylib.GetWorldToScreen(carPos + new Vector3(0, 4, 0), _camera),
+                                Raylib.GetWorldToScreen(car.Position + new Vector3(0, 4, 0), _camera),
                                 playerObj.Name));
             }
 
             if (obj is Ball ball) {
-                var ballPos = new Vector3(ball.RigidBody?.Position.X ?? 0, ball.RigidBody?.Position.Z ?? 0,
-                    ball.RigidBody?.Position.Y ?? 0) / 100;
-
-                Raylib.DrawSphere(ballPos, 1, Color.Gold);
+                Raylib.DrawSphere(ball.Position, 1, Color.Gold);
             }
         }
 
