@@ -10,8 +10,11 @@ internal sealed class Scene {
     private readonly RenderTexture2D _viewTexture;
     private Camera3D _camera;
 
-    private Model _car =
-        Raylib.LoadModel(Path.Combine(Environment.CurrentDirectory, "resources/models/cars/octane.glb"));
+    private Model _fennecOrange =
+        Raylib.LoadModel(Path.Combine(Environment.CurrentDirectory, "resources/models/cars/fennec-orange.glb"));
+
+    private Model _fennecBlue =
+        Raylib.LoadModel(Path.Combine(Environment.CurrentDirectory, "resources/models/cars/fennec-blue.glb"));
 
     internal Scene() {
         _viewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
@@ -24,20 +27,11 @@ internal sealed class Scene {
     }
 
     internal void Render() {
-        rlImGui.ImageRenderTextureFit(_viewTexture, false);
-
-        if (ImGui.IsItemClicked()) Raylib.DisableCursor();
-        if (Raylib.IsKeyPressed(KeyboardKey.Escape)) Raylib.EnableCursor();
-    }
-
-    internal void Update() {
-        if (Raylib.IsCursorHidden()) HandleControls();
-
         Raylib.BeginTextureMode(_viewTexture);
         Raylib.ClearBackground(Color.SkyBlue);
         Raylib.BeginMode3D(_camera);
 
-        var playerTags = new List<(Vector2, string)>();
+        var playerTags = new List<(Vector2, string, Color)>();
 
         foreach (var key in Program.Game?.Objects.Keys!) {
             Program.Game.Objects.TryGetValue(key, out var obj);
@@ -48,36 +42,47 @@ internal sealed class Scene {
                     1 => Color.Orange,
                     _ => Color.White
                 };
-                
+
                 if (car.Hidden) continue;
 
-                _car.Transform =
-                    Matrix4x4.CreateFromQuaternion(car.Rotation) * Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
-                
-                Raylib.DrawModel(_car, car.Position, 1, color);
+                if (car.TeamPaint?.TeamNumber == 0) {
+                    _fennecBlue.Transform = Matrix4x4.CreateFromQuaternion(car.Rotation);
+                    Raylib.DrawModel(_fennecBlue, car.Position, 0.01f, Color.White);
+                }
+                else {
+                    _fennecOrange.Transform = Matrix4x4.CreateFromQuaternion(car.Rotation);
+                    Raylib.DrawModel(_fennecOrange, car.Position, 0.01f, Color.White);
+                }
 
                 if (car.PlayerActor != null)
                     if (Program.Game.Objects.TryGetValue(car.PlayerActor.ActorId, out var player))
                         if (player is Player playerObj)
                             playerTags.Add((
                                 Raylib.GetWorldToScreen(car.Position + new Vector3(0, 4, 0), _camera),
-                                playerObj.Name));
+                                playerObj.Name, color));
             }
 
-            if (obj is Ball ball) {
-                Raylib.DrawSphere(ball.Position, 1, Color.Gold);
-            }
+            if (obj is Ball ball) Raylib.DrawSphere(ball.Position, 1, Color.Gold);
         }
 
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);
 
         Raylib.EndMode3D();
 
-        foreach (var (pos, text) in playerTags) Raylib.DrawText(text, (int)pos.X, (int)pos.Y, 20, Color.Red);
+        foreach (var (pos, text, color) in playerTags) Raylib.DrawText(text, (int)pos.X, (int)pos.Y, 20, color);
 
         Raylib.EndTextureMode();
 
-        Program.Game.TryNextFrame(Raylib.GetTime());
+        rlImGui.ImageRenderTextureFit(_viewTexture, false);
+
+        if (ImGui.IsItemClicked()) Raylib.DisableCursor();
+        if (Raylib.IsKeyPressed(KeyboardKey.Escape)) Raylib.EnableCursor();
+    }
+
+    internal void Update() {
+        if (Raylib.IsCursorHidden()) HandleControls();
+
+        Program.Game?.TryNextFrame(Raylib.GetTime());
     }
 
     private void HandleControls() {
