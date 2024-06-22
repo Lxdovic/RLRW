@@ -110,7 +110,31 @@ internal sealed class Scene {
     }
 
     private void HandleControls() {
-        Raylib.UpdateCamera(ref _camera, CameraMode.Free);
+        // Raylib.UpdateCamera(ref _camera, CameraMode.Free);
+        
+        if (Program.Game == null) return;
+
+        var ball = Program.Game.Balls.FirstOrDefault().Value;
+        var car = Program.Game.Cars.FirstOrDefault().Value;
+
+        if (ball == null || car == null) return;
+        if (car.PlayerActor == null) return;
+
+        Program.Game.Players.TryGetValue(car.PlayerActor.ActorId, out var player);
+
+        if (player == null || player.Camera == null) return;
+
+        Program.Game.CameraSettingsActors.TryGetValue(player.Camera.ActorId, out var cameraSettings);
+
+        if (cameraSettings == null || cameraSettings.ProfileSettings == null) return;
+
+        _camera.Position = car.Position;
+        _camera.FovY = cameraSettings.ProfileSettings.FieldOfView;
+        
+        Raylib.CameraMoveForward(ref _camera, -cameraSettings.ProfileSettings.Distance / 100, true);
+        Raylib.CameraMoveUp(ref _camera, cameraSettings.ProfileSettings.Height / 100);
+        
+        _camera.Target = ball.Position;
     }
 
     internal void Unload() {
