@@ -85,8 +85,12 @@ internal sealed class Scene {
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);
 
         Raylib.EndMode3D();
+        
 
-        foreach (var (pos, text, color) in playerTags) Raylib.DrawText(text, (int)pos.X, (int)pos.Y, 20, color);
+        foreach (var (pos, text, color) in playerTags) {
+            var textSize = Raylib.MeasureText(text, 20);
+            Raylib.DrawText(text, (int)pos.X - textSize / 2, (int)pos.Y, 20, color);
+        }
 
         Raylib.EndTextureMode();
 
