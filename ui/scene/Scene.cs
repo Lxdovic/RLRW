@@ -9,6 +9,7 @@ namespace RLReplayWatcher.ui.scene;
 internal sealed class Scene {
     private readonly RenderTexture2D _viewTexture;
     private Camera3D _camera;
+    private List<Vector3> _ballPositionHistory = [];
 
     private Model _fennecOrange =
         Raylib.LoadModel(Path.Combine(Environment.CurrentDirectory, "resources/models/cars/fennec-orange.glb"));
@@ -62,7 +63,23 @@ internal sealed class Scene {
                                 playerObj.Name, color));
             }
 
-            if (obj is Ball ball) Raylib.DrawSphere(ball.Position, 1, Color.Gold);
+            if (obj is Ball ball) {
+                var color = ball.HitTeamNum switch {
+                    0 => Color.Blue,
+                    1 => Color.Orange,
+                    _ => Color.White
+                };
+                
+                Raylib.DrawSphere(ball.Position, 1, color);
+
+                if (_ballPositionHistory.LastOrDefault() != ball.Position) 
+                    _ballPositionHistory.Add(ball.Position);
+                
+                if (_ballPositionHistory.Count > ball.LinearVelocity.Length() / 100) _ballPositionHistory.RemoveAt(0);
+                
+                for (var i = 0; i < _ballPositionHistory.Count - 1; i++)
+                    Raylib.DrawLine3D(_ballPositionHistory[i], _ballPositionHistory[i + 1], color);
+            }
         }
 
         Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);
