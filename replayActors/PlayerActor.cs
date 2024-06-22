@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Player : GameEntity {
+internal sealed class PlayerActor : Actor {
     public string Name { get; set; } = "";
     public ActiveActor? Team { get; set; }
     public uint Score { get; set; }
@@ -28,7 +28,7 @@ internal sealed class Player : GameEntity {
     public byte PawnType { get; set; }
     public string? RemoteUserData { get; set; }
     public bool IsDistracted { get; set; }
-    
+
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "Engine.PlayerReplicationInfo:PlayerName":

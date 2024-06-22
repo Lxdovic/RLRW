@@ -1,4 +1,3 @@
-using System.Numerics;
 using RLReplayWatcher.replayHelper;
 using RocketLeagueReplayParser;
 using RocketLeagueReplayParser.NetworkStream;
@@ -6,7 +5,12 @@ using RocketLeagueReplayParser.NetworkStream;
 namespace RLReplayWatcher.replayActors;
 
 internal sealed class GameManager(Replay replay) {
-    public readonly Dictionary<int, GameEntity> Objects = [];
+    public readonly Dictionary<int, BallActor> Balls = [];
+    public readonly Dictionary<int, BoostActor> Boosts = [];
+    public readonly Dictionary<int, CameraSettingsActor> CameraSettingsActors = [];
+    public readonly Dictionary<int, CarActor> Cars = [];
+    public readonly Dictionary<int, GameActor> Games = [];
+    public readonly Dictionary<int, PlayerActor> Players = [];
 
     private Replay Replay { get; } = replay;
     private int FrameIndex { get; set; }
@@ -26,33 +30,64 @@ internal sealed class GameManager(Replay replay) {
 
                 switch (className) {
                     case "TAGame.Ball_TA":
-                        Objects.TryAdd(actorId,
-                            new Ball(actor.Position));
+                        Balls.TryAdd(actorId,
+                            new BallActor(actor.Position));
+                        // Objects.TryAdd(actorId,
+                        // new Ball(actor.Position));
                         break;
                     case "TAGame.Car_TA":
-                        Objects.TryAdd(actorId,
-                            new Car(actor.Position));
+                        Cars.TryAdd(actorId,
+                            new CarActor(actor.Position));
                         break;
                     case "TAGame.PRI_TA":
-                        Objects.TryAdd(actorId, new Player());
+                        Players.TryAdd(actorId, new PlayerActor());
                         break;
                     case "TAGame.GRI_TA":
-                        Objects.TryAdd(actorId, new Game());
+                        Games.TryAdd(actorId, new GameActor());
                         break;
                     case "TAGame.CameraSettingsActor_TA":
-                        Objects.TryAdd(actorId, new CameraSettingsActor());
+                        CameraSettingsActors.TryAdd(actorId, new CameraSettingsActor());
                         break;
                     case "TAGame.CarComponent_Boost_TA":
-                        Objects.TryAdd(actorId, new Boost());
+                        Boosts.TryAdd(actorId, new BoostActor());
                         break;
                 }
             }
 
-            if (actor.State == ActorStateState.Existing && Objects.TryGetValue(actorId, out var obj))
-                foreach (var (_, property) in actor.Properties)
-                    obj.HandleGameEvents(property);
+            if (actor.State == ActorStateState.Existing) {
+                if (Cars.TryGetValue(actorId, out var car))
+                    foreach (var (_, property) in actor.Properties)
+                        car.HandleGameEvents(property);
 
-            if (actor.State == ActorStateState.Deleted && Objects.ContainsKey(actorId)) Objects.Remove(actorId);
+                if (Balls.TryGetValue(actorId, out var ball))
+                    foreach (var (_, property) in actor.Properties)
+                        ball.HandleGameEvents(property);
+
+                if (Boosts.TryGetValue(actorId, out var boost))
+                    foreach (var (_, property) in actor.Properties)
+                        boost.HandleGameEvents(property);
+
+                if (Players.TryGetValue(actorId, out var player))
+                    foreach (var (_, property) in actor.Properties)
+                        player.HandleGameEvents(property);
+
+                if (Games.TryGetValue(actorId, out var game))
+                    foreach (var (_, property) in actor.Properties)
+                        game.HandleGameEvents(property);
+
+                if (CameraSettingsActors.TryGetValue(actorId, out var cameraSettingsActor))
+                    foreach (var (_, property) in actor.Properties)
+                        cameraSettingsActor.HandleGameEvents(property);
+            }
+
+            if (actor.State == ActorStateState.Deleted) {
+                if (Cars.ContainsKey(actorId)) Cars.Remove(actorId);
+                if (Balls.ContainsKey(actorId)) Balls.Remove(actorId);
+                if (Boosts.ContainsKey(actorId)) Boosts.Remove(actorId);
+                if (Players.ContainsKey(actorId)) Players.Remove(actorId);
+                if (Games.ContainsKey(actorId)) Games.Remove(actorId);
+                if (CameraSettingsActors.ContainsKey(actorId)) CameraSettingsActors.Remove(actorId);
+            }
         }
     }
 }

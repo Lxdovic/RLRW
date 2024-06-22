@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Boost : GameEntity {
+internal sealed class BoostActor : Actor {
     public ActiveActor? Vehicle { get; set; }
     public ReplicatedBoost? ReplicatedBoost { get; set; }
     public byte Amount { get; set; }
@@ -22,7 +22,7 @@ internal sealed class Boost : GameEntity {
             case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount":
                 Amount = (byte)property.Data;
                 break;
-            
+
             default:
                 Console.WriteLine(
                     $"Unhandled property: {property.PropertyName} for object boost (TAGame.Boost_TA); data: {property.Data}, type: {property.Data.GetType()}");

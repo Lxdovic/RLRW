@@ -5,24 +5,17 @@ using RLRPQuaternion = RocketLeagueReplayParser.NetworkStream.Quaternion;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Car(Vector3D position) : GameEntity {
+internal sealed class BallActor(Vector3D position) : Actor {
     public bool Sleeping { get; set; }
     public Vector3 Position { get; set; } = new Vector3(position.X, position.Z, position.Y) / 100;
     public Quaternion Rotation { get; set; }
     public Vector3 LinearVelocity { get; set; }
     public Vector3 AngularVelocity { get; set; }
-    public ActiveActor? PlayerActor { get; set; }
-    public TeamPaint? TeamPaint { get; set; }
-    public float Throttle { get; set; }
-    public float Steer { get; set; }
-    public bool Handbrake { get; set; }
-    public bool IsDriving { get; set; }
-    public ReplicatedDemolishGoalExplosion? DemoGoalExplosion { get; set; }
+    public int HitTeamNum { get; set; }
     public bool CollideActors { get; set; }
     public bool BlockActors { get; set; }
-    public bool Hidden { get; set; }
-    public bool ReplayActor { get; set; }
-    public ActiveActor? RumblePickups { get; set; }
+    public ReplicatedExplosionDataExtended? ExplosionDataExtended { get; set; }
+    public ActiveActor? GameEvent { get; set; }
 
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
@@ -49,40 +42,18 @@ internal sealed class Car(Vector3D position) : GameEntity {
             case "Engine.Actor:bBlockActors":
                 BlockActors = (bool)property.Data;
                 break;
-            case "Engine.Actor:bHidden":
-                Hidden = (bool)property.Data;
+            case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
+                ExplosionDataExtended = (ReplicatedExplosionDataExtended)property.Data;
                 break;
-            case "TAGame.Car_TA:TeamPaint":
-                TeamPaint = (TeamPaint)property.Data;
+            case "TAGame.Ball_TA:GameEvent":
+                GameEvent = (ActiveActor)property.Data;
                 break;
-            case "Engine.Pawn:PlayerReplicationInfo":
-                PlayerActor = (ActiveActor)property.Data;
+            case "TAGame.Ball_TA:HitTeamNum":
+                HitTeamNum = (byte)property.Data;
                 break;
-            case "TAGame.Vehicle_TA:ReplicatedThrottle":
-                Throttle = (byte)property.Data;
-                break;
-            case "TAGame.Vehicle_TA:ReplicatedSteer":
-                Steer = (byte)property.Data;
-                break;
-            case "TAGame.Vehicle_TA:bReplicatedHandbrake":
-                Handbrake = (bool)property.Data;
-                break;
-            case "TAGame.Car_TA:RumblePickups":
-                RumblePickups = (ActiveActor)property.Data;
-                break;
-            case "TAGame.Vehicle_TA:bDriving":
-                IsDriving = (bool)property.Data;
-                break;
-            case "TAGame.Car_TA:ReplicatedDemolishGoalExplosion":
-                DemoGoalExplosion = (ReplicatedDemolishGoalExplosion)property.Data;
-                break;
-            case "TAGame.RBActor_TA:bReplayActor":
-                ReplayActor = (bool)property.Data;
-                break;
-
             default:
                 Console.WriteLine(
-                    $"Unhandled property: {property.PropertyName} for object car (TAGame.Car_TA); data: {property.Data}");
+                    $"Unhandled property: {property.PropertyName} for object ball (TAGame.Ball_TA); data: {property.Data}");
                 break;
         }
     }

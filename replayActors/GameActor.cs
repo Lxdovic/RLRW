@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class Game : GameEntity {
+internal sealed class GameActor : Actor {
     public uint GamePlaylist { get; set; }
     public ObjectTarget? GameClass { get; set; }
     public string? ServerName { get; set; }
