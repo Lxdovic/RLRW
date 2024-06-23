@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using Raylib_cs;
@@ -105,10 +106,10 @@ internal sealed class Scene {
         if (Raylib.IsKeyPressed(KeyboardKey.Escape)) Raylib.EnableCursor();
     }
 
-    internal void Update() {
+    internal void Update(Stopwatch stopwatch, double time) {
         if (Raylib.IsCursorHidden()) HandleControls();
 
-        Program.Game?.TryNextFrame(Raylib.GetTime());
+        if (stopwatch.IsRunning) Program.Game?.TryNextFrame(stopwatch.ElapsedMilliseconds + time);
     }
 
     private void HandleControls() {
