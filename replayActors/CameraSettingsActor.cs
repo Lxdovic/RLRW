@@ -10,13 +10,39 @@ internal sealed class CameraSettingsActor : Actor {
     public bool UsingSecondaryCamera { get; set; }
     public bool UsingBehindView { get; set; }
 
+    public override CameraSettingsActor Clone() {
+        return new CameraSettingsActor {
+            ProfileSettings = ProfileSettings?.Clone(),
+            GameraActor = GameraActor?.Clone(),
+            GameraYaw = GameraYaw,
+            GameraPitch = GameraPitch,
+            UsingSecondaryCamera = UsingSecondaryCamera,
+            UsingBehindView = UsingBehindView
+        };
+    }
+
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                ProfileSettings = (CameraSettings)property.Data;
+                var profileSettings = (RLRPCameraSettings)property.Data;
+
+                ProfileSettings = new CameraSettings {
+                    FieldOfView = profileSettings.FieldOfView,
+                    Height = profileSettings.Height,
+                    Pitch = profileSettings.Pitch,
+                    Distance = profileSettings.Distance,
+                    Stiffness = profileSettings.Stiffness,
+                    SwivelSpeed = profileSettings.SwivelSpeed,
+                    TransitionSpeed = profileSettings.TransitionSpeed
+                };
                 break;
             case "TAGame.CameraSettingsActor_TA:PRI":
-                GameraActor = (ActiveActor)property.Data;
+                var actor = (RLRPActiveActor)property.Data;
+
+                GameraActor = new ActiveActor {
+                    Active = actor.Active,
+                    ActorId = actor.ActorId
+                };
                 break;
             case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 GameraYaw = (byte)property.Data;

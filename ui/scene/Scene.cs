@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime;
 using ImGuiNET;
 using Raylib_cs;
 using rlImGui_cs;
@@ -29,8 +28,9 @@ internal sealed class Scene {
 
     private List<(Vector2, string, Color)> RenderPlayers() {
         var playerTags = new List<(Vector2, string, Color)>();
+        var frame = Program.Game!.Frames[Program.Game.FrameIndex];
 
-        foreach (var (id, car) in Program.Game!.Cars) {
+        foreach (var (id, car) in frame.CarActors) {
             var color = car.TeamPaint?.TeamNumber switch {
                 0 => Color.Blue,
                 1 => Color.Orange,
@@ -47,8 +47,8 @@ internal sealed class Scene {
                 _fennecOrange.Transform = Matrix4x4.CreateFromQuaternion(car.Rotation);
                 Raylib.DrawModel(_fennecOrange, car.Position, 0.01f, Color.White);
             }
-
-            if (car.PlayerActor != null && Program.Game.Players.TryGetValue(car.PlayerActor.ActorId, out var player))
+            
+            if (car.PlayerActor != null && frame.PlayerActors.TryGetValue(car.PlayerActor.ActorId, out var player))
                 playerTags.Add((
                     Raylib.GetWorldToScreen(car.Position + new Vector3(0, 4, 0), _camera),
                     player.Name, color));
@@ -58,7 +58,9 @@ internal sealed class Scene {
     }
 
     private void RenderBalls() {
-        foreach (var (id, ball) in Program.Game!.Balls) {
+        var frame = Program.Game!.Frames[Program.Game.FrameIndex];
+
+        foreach (var (id, ball) in frame.BallActors) {
             var color = ball.HitTeamNum switch {
                 0 => Color.Blue,
                 1 => Color.Orange,
@@ -110,31 +112,31 @@ internal sealed class Scene {
     }
 
     private void HandleControls() {
-        // Raylib.UpdateCamera(ref _camera, CameraMode.Free);
-        
-        if (Program.Game == null) return;
+        Raylib.UpdateCamera(ref _camera, CameraMode.Free);
 
-        var ball = Program.Game.Balls.FirstOrDefault().Value;
-        var car = Program.Game.Cars.FirstOrDefault().Value;
-
-        if (ball == null || car == null) return;
-        if (car.PlayerActor == null) return;
-
-        Program.Game.Players.TryGetValue(car.PlayerActor.ActorId, out var player);
-
-        if (player == null || player.Camera == null) return;
-
-        Program.Game.CameraSettingsActors.TryGetValue(player.Camera.ActorId, out var cameraSettings);
-
-        if (cameraSettings == null || cameraSettings.ProfileSettings == null) return;
-
-        _camera.Position = car.Position;
-        _camera.FovY = cameraSettings.ProfileSettings.FieldOfView;
-        
-        Raylib.CameraMoveForward(ref _camera, -cameraSettings.ProfileSettings.Distance / 100, true);
-        Raylib.CameraMoveUp(ref _camera, cameraSettings.ProfileSettings.Height / 100);
-        
-        _camera.Target = ball.Position;
+        // if (Program.Game == null) return;
+        //
+        // var ball = Program.Game.Balls.FirstOrDefault().Value;
+        // var car = Program.Game.Cars.FirstOrDefault().Value;
+        //
+        // if (ball == null || car == null) return;
+        // if (car.PlayerActor == null) return;
+        //
+        // Program.Game.Players.TryGetValue(car.PlayerActor.ActorId, out var player);
+        //
+        // if (player == null || player.Camera == null) return;
+        //
+        // Program.Game.CameraSettingsActors.TryGetValue(player.Camera.ActorId, out var cameraSettings);
+        //
+        // if (cameraSettings == null || cameraSettings.ProfileSettings == null) return;
+        //
+        // _camera.Position = car.Position;
+        // _camera.FovY = cameraSettings.ProfileSettings.FieldOfView;
+        //
+        // Raylib.CameraMoveForward(ref _camera, -cameraSettings.ProfileSettings.Distance / 100, true);
+        // Raylib.CameraMoveUp(ref _camera, cameraSettings.ProfileSettings.Height / 100);
+        //
+        // _camera.Target = ball.Position;
     }
 
     internal void Unload() {

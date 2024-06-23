@@ -8,13 +8,34 @@ internal sealed class BoostActor : Actor {
     public byte Amount { get; set; }
     public byte Active { get; set; }
 
+    public override BoostActor Clone() {
+        return new BoostActor {
+            Vehicle = Vehicle?.Clone(),
+            ReplicatedBoost = ReplicatedBoost?.Clone(),
+            Amount = Amount,
+            Active = Active
+        };
+    }
+
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             case "TAGame.CarComponent_Boost_TA:ReplicatedBoost":
-                ReplicatedBoost = (ReplicatedBoost)property.Data;
+                var boost = (RLRPReplicatedBoost)property.Data;
+
+                ReplicatedBoost = new ReplicatedBoost {
+                    GrantCount = boost.GrantCount,
+                    BoostAmount = boost.BoostAmount,
+                    Unused1 = boost.Unused1,
+                    Unused2 = boost.Unused2
+                };
                 break;
             case "TAGame.CarComponent_TA:Vehicle":
-                Vehicle = (ActiveActor)property.Data;
+                var actor = (RLRPActiveActor)property.Data;
+
+                Vehicle = new ActiveActor {
+                    Active = actor.Active,
+                    ActorId = actor.ActorId
+                };
                 break;
             case "TAGame.CarComponent_TA:ReplicatedActive":
                 Active = (byte)property.Data;

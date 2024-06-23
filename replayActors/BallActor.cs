@@ -1,13 +1,11 @@
 using System.Numerics;
 using RocketLeagueReplayParser.NetworkStream;
-using Quaternion = System.Numerics.Quaternion;
-using RLRPQuaternion = RocketLeagueReplayParser.NetworkStream.Quaternion;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class BallActor(Vector3D position) : Actor {
+internal sealed class BallActor : Actor {
     public bool Sleeping { get; set; }
-    public Vector3 Position { get; set; } = new Vector3(position.X, position.Z, position.Y) / 100;
+    public Vector3 Position { get; set; }
     public Quaternion Rotation { get; set; }
     public Vector3 LinearVelocity { get; set; }
     public Vector3 AngularVelocity { get; set; }
@@ -43,10 +41,20 @@ internal sealed class BallActor(Vector3D position) : Actor {
                 BlockActors = (bool)property.Data;
                 break;
             case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
-                ExplosionDataExtended = (ReplicatedExplosionDataExtended)property.Data;
+                var explosionDataExtended = (RLRPReplicatedExplosionDataExtended)property.Data;
+
+                ExplosionDataExtended = new ReplicatedExplosionDataExtended {
+                    Unknown3 = explosionDataExtended.Unknown3,
+                    Unknown4 = explosionDataExtended.Unknown4
+                };
                 break;
             case "TAGame.Ball_TA:GameEvent":
-                GameEvent = (ActiveActor)property.Data;
+                var gameEvent = (RLRPActiveActor)property.Data;
+
+                GameEvent = new ActiveActor {
+                    Active = gameEvent.Active,
+                    ActorId = gameEvent.ActorId
+                };
                 break;
             case "TAGame.Ball_TA:HitTeamNum":
                 HitTeamNum = (byte)property.Data;
@@ -56,5 +64,20 @@ internal sealed class BallActor(Vector3D position) : Actor {
                     $"Unhandled property: {property.PropertyName} for object ball (TAGame.Ball_TA); data: {property.Data}");
                 break;
         }
+    }
+
+    public override BallActor Clone() {
+        return new BallActor {
+            Sleeping = Sleeping,
+            Position = new Vector3(Position.X, Position.Y, Position.Z),
+            Rotation = new Quaternion(Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
+            LinearVelocity = new Vector3(LinearVelocity.X, LinearVelocity.Y, LinearVelocity.Z),
+            AngularVelocity = new Vector3(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z),
+            HitTeamNum = HitTeamNum,
+            CollideActors = CollideActors,
+            BlockActors = BlockActors,
+            ExplosionDataExtended = ExplosionDataExtended?.Clone(),
+            GameEvent = GameEvent?.Clone()
+        };
     }
 }

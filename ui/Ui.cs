@@ -46,6 +46,7 @@ internal static class Ui {
             Program.Replay = ReplayHelper.Parse(_path);
             Program.Scene = new Scene();
             Program.Game = new GameManager(Program.Replay);
+            Program.Game.Parse();
         }
 
         ImGui.EndChild();
