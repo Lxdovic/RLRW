@@ -21,6 +21,7 @@ internal sealed class CarActor : Actor {
     public bool Hidden { get; set; }
     public bool ReplayActor { get; set; }
     public ActiveActor? RumblePickups { get; set; }
+    public ClubColors? ClubColors { get; set; }
 
     public override CarActor Clone() {
         return new CarActor {
@@ -40,7 +41,8 @@ internal sealed class CarActor : Actor {
             BlockActors = BlockActors,
             Hidden = Hidden,
             ReplayActor = ReplayActor,
-            RumblePickups = RumblePickups?.Clone()
+            RumblePickups = RumblePickups?.Clone(),
+            ClubColors = ClubColors?.Clone()
         };
     }
 
@@ -123,6 +125,16 @@ internal sealed class CarActor : Actor {
                 break;
             case "TAGame.RBActor_TA:bReplayActor":
                 ReplayActor = (bool)property.Data;
+                break;
+            case "TAGame.Car_TA:ClubColors":
+                var clubColors = (RLRPClubColors)property.Data;
+                
+                ClubColors = new ClubColors {
+                    Unknown1 = clubColors.Unknown1,
+                    Unknown2 = clubColors.Unknown2,
+                    Unknown3 = clubColors.Unknown3,
+                    Unknown4 = clubColors.Unknown4
+                };
                 break;
 
             default:

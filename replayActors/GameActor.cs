@@ -9,7 +9,7 @@ internal sealed class GameActor : Actor {
     public string? MatchGuid { get; set; }
     public bool GameStarted { get; set; }
     public string? GameServerId { get; set; }
-    public List<Reservation> Reservations { get; set; } = [];
+    public List<Reservation>? Reservations { get; set; }
     public string? ServerRegion { get; set; }
     public int GameMutatorIndex { get; set; }
 
@@ -21,7 +21,7 @@ internal sealed class GameActor : Actor {
             MatchGuid = MatchGuid,
             GameStarted = GameStarted,
             GameServerId = GameServerId,
-            Reservations = Reservations.Select(x => x.Clone()).ToList(),
+            Reservations = Reservations?.Select(res => res.Clone()).ToList(),
             ServerRegion = ServerRegion,
             GameMutatorIndex = GameMutatorIndex
         };
@@ -53,18 +53,32 @@ internal sealed class GameActor : Actor {
                 GameServerId = (string)property.Data;
                 break;
             case "ProjectX.GRI_X:Reservations":
-                var reservations = ((List<object>)property.Data).OfType<RLRPReservation>().ToList();
+                if (property.Data is RLRPReservation reservation) {
+                    Reservations?.Add(new Reservation {
+                        Unknown1 = reservation.Unknown1,
+                        PlayerId = new UniqueId {
+                            Type = reservation.PlayerId.Type,
+                            PlayerNumber = reservation.PlayerId.PlayerNumber,
+                            Id = reservation.PlayerId.Id
+                        },
+                        Unknown2 = reservation.Unknown2,
+                        PlayerName = reservation.PlayerName
+                    });
+                }
 
-                Reservations = reservations.Select(x => new Reservation {
-                    Unknown1 = x.Unknown1,
-                    PlayerId = new UniqueId {
-                        Id = x.PlayerId.Id,
-                        PlayerNumber = x.PlayerId.PlayerNumber,
-                        Type = x.PlayerId.Type
-                    },
-                    PlayerName = x.PlayerName,
-                    Unknown2 = x.Unknown2
-                }).ToList();
+                if (property.Data is List<RLRPReservation> reservations) {
+                    Reservations = reservations.Select(res => new Reservation {
+                        Unknown1 = res.Unknown1,
+                        PlayerId = new UniqueId {
+                            Type = res.PlayerId.Type,
+                            PlayerNumber = res.PlayerId.PlayerNumber,
+                            Id = res.PlayerId.Id
+                        },
+                        Unknown2 = res.Unknown2,
+                        PlayerName = res.PlayerName
+                    }).ToList();
+                }
+                
                 break;
             case "ProjectX.GRI_X:ReplicatedServerRegion":
                 ServerRegion = (string)property.Data;

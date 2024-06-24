@@ -16,6 +16,7 @@ global using RLRPClientLoadoutOnline = RocketLeagueReplayParser.NetworkStream.Cl
 global using RLRPProductAttribute = RocketLeagueReplayParser.NetworkStream.ProductAttribute;
 global using RLRPObjectTarget = RocketLeagueReplayParser.NetworkStream.ObjectTarget;
 global using RLRPReservation = RocketLeagueReplayParser.NetworkStream.Reservation;
+global using RLRPClubColors = RocketLeagueReplayParser.NetworkStream.ClubColors;
 
 global using ActiveActor = RLReplayWatcher.data.ActiveActor;
 global using ReplicatedExplosionDataExtended =
@@ -33,6 +34,7 @@ global using ClientLoadoutOnline = RLReplayWatcher.data.ClientLoadoutOnline;
 global using ProductAttribute = RLReplayWatcher.data.ProductAttribute;
 global using ObjectTarget = RLReplayWatcher.data.ObjectTarget;
 global using Reservation = RLReplayWatcher.data.Reservation;
+global using ClubColors = RLReplayWatcher.data.ClubColors;
 
 global using Quaternion = System.Numerics.Quaternion;
 

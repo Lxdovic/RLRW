@@ -14,6 +14,7 @@ internal sealed class BallActor : Actor {
     public bool BlockActors { get; set; }
     public ReplicatedExplosionDataExtended? ExplosionDataExtended { get; set; }
     public ActiveActor? GameEvent { get; set; }
+    public ActiveActor? ReplayActor { get; set; }
 
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
@@ -58,6 +59,14 @@ internal sealed class BallActor : Actor {
                 break;
             case "TAGame.Ball_TA:HitTeamNum":
                 HitTeamNum = (byte)property.Data;
+                break;
+            case "TAGame.RBActor_TA:bReplayActor":
+                var replayActor = (RLRPActiveActor)property.Data;
+                
+                ReplayActor = new ActiveActor {
+                    Active = replayActor.Active,
+                    ActorId = replayActor.ActorId
+                };
                 break;
             default:
                 Console.WriteLine(

@@ -29,6 +29,8 @@ internal sealed class PlayerActor : Actor {
     public byte PawnType { get; set; }
     public string? RemoteUserData { get; set; }
     public bool IsDistracted { get; set; }
+    public byte WorstNetworkQualityBeyondLatency { get; set; }
+    public List<uint>? HistoryKey { get; set; }
 
     public override PlayerActor Clone() {
         return new PlayerActor {
@@ -56,7 +58,10 @@ internal sealed class PlayerActor : Actor {
             CurrentVoiceRoom = CurrentVoiceRoom,
             PawnType = PawnType,
             RemoteUserData = RemoteUserData,
-            IsDistracted = IsDistracted
+            IsDistracted = IsDistracted,
+            PersistentCamera = PersistentCamera?.Clone(),
+            WorstNetworkQualityBeyondLatency = WorstNetworkQualityBeyondLatency,
+            HistoryKey = [..HistoryKey ?? []]
         };
     }
 
@@ -239,7 +244,14 @@ internal sealed class PlayerActor : Actor {
             case "TAGame.PRI_TA:bIsDistracted":
                 IsDistracted = (bool)property.Data;
                 break;
+            case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
+                WorstNetworkQualityBeyondLatency = (byte)property.Data;
+                break;
+            case "TAGame.PRI_TA:PlayerHistoryKey":
+                var historyKey = ((List<object>)property.Data).Select(val=> (uint)val).ToList();
 
+                HistoryKey = historyKey;
+                break;
             default:
                 Console.WriteLine(
                     $"Unhandled property: {property.PropertyName} for object player (TAGame.PRI_TA); data: {property.Data}, type: {property.Data.GetType()}");
