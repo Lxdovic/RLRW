@@ -17,13 +17,6 @@ internal struct Frame() {
 }
 
 internal sealed class GameManager(Replay replay) {
-    // public readonly Dictionary<int, BallActor> Balls = [];
-    // public readonly Dictionary<int, BoostActor> Boosts = [];
-    // public readonly Dictionary<int, CameraSettingsActor> CameraSettingsActors = [];
-    // public readonly Dictionary<int, CarActor> Cars = [];
-    // public readonly Dictionary<int, GameActor> Games = [];
-    // public readonly Dictionary<int, PlayerActor> Players = [];
-
     public Replay Replay { get; } = replay;
     public int FrameIndex { get; set; }
     public List<Frame> Frames { get; set; } = [];
