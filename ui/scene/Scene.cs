@@ -19,7 +19,7 @@ internal sealed class Scene {
 
     internal Scene() {
         _viewTexture = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-        Raylib.SetTextureFilter(_viewTexture.Texture, TextureFilter.Bilinear);
+        Raylib.SetTextureFilter(_viewTexture.Texture, TextureFilter.Anisotropic16X);
 
         _camera.FovY = 50;
         _camera.Up.Y = 1;
@@ -48,10 +48,10 @@ internal sealed class Scene {
                 _fennecOrange.Transform = Matrix4x4.CreateFromQuaternion(car.Rotation);
                 Raylib.DrawModel(_fennecOrange, car.Position, 0.01f, Color.White);
             }
-            
+
             if (car.PlayerActor != null && frame.PlayerActors.TryGetValue(car.PlayerActor.ActorId, out var player))
                 playerTags.Add((
-                    Raylib.GetWorldToScreen(car.Position + new Vector3(0, 4, 0), _camera),
+                    Raylib.GetWorldToScreen(car.Position + new Vector3(0, 1, 0), _camera),
                     player.Name, color));
         }
 
@@ -84,18 +84,28 @@ internal sealed class Scene {
         if (Program.Game == null) return;
 
         Raylib.BeginTextureMode(_viewTexture);
-        Raylib.ClearBackground(Color.SkyBlue);
+        Raylib.ClearBackground(new Color(0, 0, 0, 0));
         Raylib.BeginMode3D(_camera);
 
         RenderBalls();
         var playerTags = RenderPlayers();
 
-        Raylib.DrawPlane(new Vector3(0, 0, 0), new Vector2(100, 100), Color.White);
+        Raylib.DrawGrid(50, 4);
         Raylib.EndMode3D();
 
         foreach (var (pos, text, color) in playerTags) {
-            var textSize = Raylib.MeasureText(text, 20);
-            Raylib.DrawText(text, (int)pos.X - textSize / 2, (int)pos.Y, 20, color);
+            var textSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), text, 20, 0);
+            var minWidth = 50f;
+            var rect = new Rectangle(
+                pos.X - Math.Max(minWidth, textSize.X) / 2 - 20,
+                pos.Y - textSize.Y - 5,
+                Math.Max(minWidth, textSize.X) + 40,
+                textSize.Y + 10
+            );
+
+            Raylib.DrawRectangleRounded(rect, 0.25f, 4, color);
+            Raylib.DrawRectangleRoundedLines(rect, 0.25f, 4, 2, Color.White);
+            Raylib.DrawText(text, (int)pos.X - (int)textSize.X / 2, (int)pos.Y - (int)textSize.Y, 20, Color.White);
         }
 
         Raylib.EndTextureMode();
@@ -114,30 +124,6 @@ internal sealed class Scene {
 
     private void HandleControls() {
         Raylib.UpdateCamera(ref _camera, CameraMode.Free);
-
-        // if (Program.Game == null) return;
-        //
-        // var ball = Program.Game.Balls.FirstOrDefault().Value;
-        // var car = Program.Game.Cars.FirstOrDefault().Value;
-        //
-        // if (ball == null || car == null) return;
-        // if (car.PlayerActor == null) return;
-        //
-        // Program.Game.Players.TryGetValue(car.PlayerActor.ActorId, out var player);
-        //
-        // if (player == null || player.Camera == null) return;
-        //
-        // Program.Game.CameraSettingsActors.TryGetValue(player.Camera.ActorId, out var cameraSettings);
-        //
-        // if (cameraSettings == null || cameraSettings.ProfileSettings == null) return;
-        //
-        // _camera.Position = car.Position;
-        // _camera.FovY = cameraSettings.ProfileSettings.FieldOfView;
-        //
-        // Raylib.CameraMoveForward(ref _camera, -cameraSettings.ProfileSettings.Distance / 100, true);
-        // Raylib.CameraMoveUp(ref _camera, cameraSettings.ProfileSettings.Height / 100);
-        //
-        // _camera.Target = ball.Position;
     }
 
     internal void Unload() {
