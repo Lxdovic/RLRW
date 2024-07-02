@@ -23,6 +23,12 @@ internal sealed class CarActor : Actor {
     public ActiveActor? RumblePickups { get; set; }
     public ClubColors? ClubColors { get; set; }
 
+    public CarActor(ActorState? actor = null) {
+        if (actor == null) return;
+
+        Position = new Vector3(actor.Position.X, actor.Position.X, actor.Position.Y) / 100;
+    }
+
     public override CarActor Clone() {
         return new CarActor {
             Sleeping = Sleeping,

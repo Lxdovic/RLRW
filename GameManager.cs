@@ -1,4 +1,5 @@
-using System.Numerics;
+using System.Diagnostics;
+using System.Reflection;
 using RLReplayWatcher.replayActors;
 using RLReplayWatcher.replayHelper;
 using RocketLeagueReplayParser;
@@ -6,14 +7,30 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher;
 
-internal struct Frame() {
-    public double Time { get; set; } = 0;
+internal sealed class Frame {
+    public Frame(Frame? frame = null) {
+        if (frame == null) return;
+
+        BallActors = CloneActors(frame.BallActors);
+        CarActors = CloneActors(frame.CarActors);
+        BoostActors = CloneActors(frame.BoostActors);
+        PlayerActors = CloneActors(frame.PlayerActors);
+        GameActors = CloneActors(frame.GameActors);
+        CameraSettingsActors = CloneActors(frame.CameraSettingsActors);
+        Time = frame.Time;
+    }
+
+    public double Time { get; set; }
     public Dictionary<int, BallActor> BallActors { get; set; } = [];
     public Dictionary<int, CarActor> CarActors { get; set; } = [];
     public Dictionary<int, BoostActor> BoostActors { get; set; } = [];
     public Dictionary<int, PlayerActor> PlayerActors { get; set; } = [];
     public Dictionary<int, GameActor> GameActors { get; set; } = [];
     public Dictionary<int, CameraSettingsActor> CameraSettingsActors { get; set; } = [];
+
+    private Dictionary<int, T> CloneActors<T>(Dictionary<int, T> actors) where T : Actor {
+        return actors.ToDictionary(entry => entry.Key, entry => (T)entry.Value.Clone());
+    }
 }
 
 internal sealed class GameManager(Replay replay) {
@@ -25,21 +42,7 @@ internal sealed class GameManager(Replay replay) {
         List<Frame> frames = [new Frame()];
 
         foreach (var frame in Replay.Frames) {
-            var parsedFrame = new Frame {
-                Time = frame.Time,
-                BallActors = frames.LastOrDefault().BallActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone()),
-                CarActors = frames.LastOrDefault().CarActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone()),
-                BoostActors = frames.LastOrDefault().BoostActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone()),
-                PlayerActors = frames.LastOrDefault().PlayerActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone()),
-                GameActors = frames.LastOrDefault().GameActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone()),
-                CameraSettingsActors = frames.LastOrDefault().CameraSettingsActors.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.Clone())
-            };
+            var parsedFrame = new Frame(frames.Last());
 
             foreach (var actor in frame.ActorStates) {
                 var actorId = (int)actor.Id;
@@ -50,15 +53,11 @@ internal sealed class GameManager(Replay replay) {
                     switch (className) {
                         case "TAGame.Ball_TA":
                             parsedFrame.BallActors.TryAdd(actorId,
-                                new BallActor {
-                                    Position = new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y) / 100
-                                });
+                                new BallActor(actor));
                             break;
                         case "TAGame.Car_TA":
                             parsedFrame.CarActors.TryAdd(actorId,
-                                new CarActor {
-                                    Position = new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y) / 100
-                                });
+                                new CarActor(actor));
                             break;
                         case "TAGame.PRI_TA":
                             parsedFrame.PlayerActors.TryAdd(actorId, new PlayerActor());

@@ -3,7 +3,13 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class BallActor : Actor {
+internal sealed class BallActor() : Actor {
+    public BallActor(ActorState? actor = null) : this() {
+        if (actor == null) return;
+
+        Position = new Vector3(actor!.Position.X, actor.Position.Z, actor.Position.Y) / 100;
+    }
+
     public bool Sleeping { get; set; }
     public Vector3 Position { get; set; }
     public Quaternion Rotation { get; set; }
@@ -62,7 +68,7 @@ internal sealed class BallActor : Actor {
                 break;
             case "TAGame.RBActor_TA:bReplayActor":
                 var replayActor = (RLRPActiveActor)property.Data;
-                
+
                 ReplayActor = new ActiveActor {
                     Active = replayActor.Active,
                     ActorId = replayActor.ActorId
