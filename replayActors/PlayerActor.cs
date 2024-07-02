@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class PlayerActor : Actor {
+internal sealed class PlayerActor(ActorState? actor = null) : Actor {
     public string Name { get; set; } = "";
     public ActiveActor? Team { get; set; }
     public uint Score { get; set; }
@@ -93,7 +93,7 @@ internal sealed class PlayerActor : Actor {
 
                 var loadoutOne = clientLoadouts.Loadout1;
                 var loadoutTwo = clientLoadouts.Loadout2;
-                
+
                 Loadouts = new ClientLoadouts {
                     Loadout1 = new ClientLoadout {
                         Unknown2 = loadoutOne.Unknown2,
@@ -114,7 +114,7 @@ internal sealed class PlayerActor : Actor {
                         GoalExplosionProductId = loadoutOne.GoalExplosionProductId,
                         Version = loadoutOne.Version
                     },
-                    
+
                     Loadout2 = new ClientLoadout {
                         Unknown2 = loadoutTwo.Unknown2,
                         Unknown3 = loadoutTwo.Unknown3,
@@ -179,22 +179,24 @@ internal sealed class PlayerActor : Actor {
 
                 LoadoutsOnline = new ClientLoadoutsOnline {
                     LoadoutOnline1 = new ClientLoadoutOnline {
-                        ProductAttributeLists = loadoutOnlineOne?.ProductAttributeLists.Select(x => x.Select(y => new ProductAttribute() {
-                            Unknown1 = y.Unknown1,
-                            ClassIndex = y.ClassIndex,
-                            ClassName = y.ClassName,
-                            HasValue = y.HasValue,
-                            Value = y.Value
-                        }).ToList()).ToList()
+                        ProductAttributeLists = loadoutOnlineOne?.ProductAttributeLists.Select(x => x.Select(y =>
+                            new ProductAttribute {
+                                Unknown1 = y.Unknown1,
+                                ClassIndex = y.ClassIndex,
+                                ClassName = y.ClassName,
+                                HasValue = y.HasValue,
+                                Value = y.Value
+                            }).ToList()).ToList()
                     },
                     LoadoutOnline2 = new ClientLoadoutOnline {
-                        ProductAttributeLists = loadoutOnlineTwo?.ProductAttributeLists.Select(x => x.Select(y => new ProductAttribute() {
-                            Unknown1 = y.Unknown1,
-                            ClassIndex = y.ClassIndex,
-                            ClassName = y.ClassName,
-                            HasValue = y.HasValue,
-                            Value = y.Value
-                        }).ToList()).ToList()
+                        ProductAttributeLists = loadoutOnlineTwo?.ProductAttributeLists.Select(x => x.Select(y =>
+                            new ProductAttribute {
+                                Unknown1 = y.Unknown1,
+                                ClassIndex = y.ClassIndex,
+                                ClassName = y.ClassName,
+                                HasValue = y.HasValue,
+                                Value = y.Value
+                            }).ToList()).ToList()
                     },
                     Unknown1 = loadoutsOnline.Unknown1,
                     Unknown2 = loadoutsOnline.Unknown2
@@ -248,7 +250,7 @@ internal sealed class PlayerActor : Actor {
                 WorstNetworkQualityBeyondLatency = (byte)property.Data;
                 break;
             case "TAGame.PRI_TA:PlayerHistoryKey":
-                var historyKey = ((List<object>)property.Data).Select(val=> (uint)val).ToList();
+                var historyKey = ((List<object>)property.Data).Select(val => (uint)val).ToList();
 
                 HistoryKey = historyKey;
                 break;

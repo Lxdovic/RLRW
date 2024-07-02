@@ -1,10 +1,8 @@
-using System.Numerics;
 using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class MapScoreboardActor : Actor {
-
+internal sealed class MapScoreboardActor(ActorState? actor = null) : Actor {
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             default:
@@ -15,7 +13,6 @@ internal sealed class MapScoreboardActor : Actor {
     }
 
     public override MapScoreboardActor Clone() {
-        return new MapScoreboardActor {
-        };
+        return new MapScoreboardActor();
     }
 }

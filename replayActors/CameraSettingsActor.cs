@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class CameraSettingsActor : Actor {
+internal sealed class CameraSettingsActor(ActorState? actor = null) : Actor {
     public CameraSettings? ProfileSettings { get; set; }
     public ActiveActor? GameraActor { get; set; }
     public byte GameraYaw { get; set; }

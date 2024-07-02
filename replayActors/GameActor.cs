@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class GameActor : Actor {
+internal sealed class GameActor(ActorState? actor = null) : Actor {
     public uint GamePlaylist { get; set; }
     public ObjectTarget? GameClass { get; set; }
     public string? ServerName { get; set; }
@@ -53,7 +53,7 @@ internal sealed class GameActor : Actor {
                 GameServerId = (string)property.Data;
                 break;
             case "ProjectX.GRI_X:Reservations":
-                if (property.Data is RLRPReservation reservation) {
+                if (property.Data is RLRPReservation reservation)
                     Reservations?.Add(new Reservation {
                         Unknown1 = reservation.Unknown1,
                         PlayerId = new UniqueId {
@@ -64,9 +64,8 @@ internal sealed class GameActor : Actor {
                         Unknown2 = reservation.Unknown2,
                         PlayerName = reservation.PlayerName
                     });
-                }
 
-                if (property.Data is List<RLRPReservation> reservations) {
+                if (property.Data is List<RLRPReservation> reservations)
                     Reservations = reservations.Select(res => new Reservation {
                         Unknown1 = res.Unknown1,
                         PlayerId = new UniqueId {
@@ -77,8 +76,7 @@ internal sealed class GameActor : Actor {
                         Unknown2 = res.Unknown2,
                         PlayerName = res.PlayerName
                     }).ToList();
-                }
-                
+
                 break;
             case "ProjectX.GRI_X:ReplicatedServerRegion":
                 ServerRegion = (string)property.Data;

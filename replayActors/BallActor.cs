@@ -7,7 +7,7 @@ internal sealed class BallActor() : Actor {
     public BallActor(ActorState? actor = null) : this() {
         if (actor == null) return;
 
-        Position = new Vector3(actor!.Position.X, actor.Position.Z, actor.Position.Y) / 100;
+        Position = new Vector3(actor.Position.X, actor.Position.Z, actor.Position.Y) / 100;
     }
 
     public bool Sleeping { get; set; }

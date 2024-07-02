@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Reflection;
 using RLReplayWatcher.replayActors;
 using RLReplayWatcher.replayHelper;
 using RocketLeagueReplayParser;
@@ -17,7 +15,6 @@ internal sealed class Frame {
         PlayerActors = CloneActors(frame.PlayerActors);
         GameActors = CloneActors(frame.GameActors);
         CameraSettingsActors = CloneActors(frame.CameraSettingsActors);
-        Time = frame.Time;
     }
 
     public double Time { get; set; }
@@ -38,11 +35,17 @@ internal sealed class GameManager(Replay replay) {
     public int FrameIndex { get; set; }
     public List<Frame> Frames { get; set; } = [];
 
+    private void HandleGameEvents<T>(Dictionary<int, T> actors, int actorId, ActorState actor) where T : Actor {
+        if (actors.TryGetValue(actorId, out var car))
+            foreach (var (_, property) in actor.Properties)
+                car.HandleGameEvents(property);
+    }
+
     public void Parse() {
         List<Frame> frames = [new Frame()];
 
         foreach (var frame in Replay.Frames) {
-            var parsedFrame = new Frame(frames.Last());
+            var parsedFrame = new Frame(frames.Last()) { Time = frame.Time };
 
             foreach (var actor in frame.ActorStates) {
                 var actorId = (int)actor.Id;
@@ -52,12 +55,10 @@ internal sealed class GameManager(Replay replay) {
 
                     switch (className) {
                         case "TAGame.Ball_TA":
-                            parsedFrame.BallActors.TryAdd(actorId,
-                                new BallActor(actor));
+                            parsedFrame.BallActors.TryAdd(actorId, new BallActor(actor));
                             break;
                         case "TAGame.Car_TA":
-                            parsedFrame.CarActors.TryAdd(actorId,
-                                new CarActor(actor));
+                            parsedFrame.CarActors.TryAdd(actorId, new CarActor(actor));
                             break;
                         case "TAGame.PRI_TA":
                             parsedFrame.PlayerActors.TryAdd(actorId, new PlayerActor());
@@ -71,33 +72,22 @@ internal sealed class GameManager(Replay replay) {
                         case "TAGame.CarComponent_Boost_TA":
                             parsedFrame.BoostActors.TryAdd(actorId, new BoostActor());
                             break;
+
+                        default:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"Unknown class: {className}");
+                            Console.ResetColor();
+                            break;
                     }
                 }
 
                 if (actor.State == ActorStateState.Existing) {
-                    if (parsedFrame.CarActors.TryGetValue(actorId, out var car))
-                        foreach (var (_, property) in actor.Properties)
-                            car.HandleGameEvents(property);
-
-                    if (parsedFrame.BallActors.TryGetValue(actorId, out var ball))
-                        foreach (var (_, property) in actor.Properties)
-                            ball.HandleGameEvents(property);
-
-                    if (parsedFrame.BoostActors.TryGetValue(actorId, out var boost))
-                        foreach (var (_, property) in actor.Properties)
-                            boost.HandleGameEvents(property);
-
-                    if (parsedFrame.PlayerActors.TryGetValue(actorId, out var player))
-                        foreach (var (_, property) in actor.Properties)
-                            player.HandleGameEvents(property);
-
-                    if (parsedFrame.GameActors.TryGetValue(actorId, out var game))
-                        foreach (var (_, property) in actor.Properties)
-                            game.HandleGameEvents(property);
-
-                    if (parsedFrame.CameraSettingsActors.TryGetValue(actorId, out var cameraSettingsActor))
-                        foreach (var (_, property) in actor.Properties)
-                            cameraSettingsActor.HandleGameEvents(property);
+                    HandleGameEvents(parsedFrame.CarActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.BallActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.BoostActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.PlayerActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.GameActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.CameraSettingsActors, actorId, actor);
                 }
 
                 if (actor.State == ActorStateState.Deleted) {

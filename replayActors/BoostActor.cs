@@ -2,7 +2,7 @@ using RocketLeagueReplayParser.NetworkStream;
 
 namespace RLReplayWatcher.replayActors;
 
-internal sealed class BoostActor : Actor {
+internal sealed class BoostActor(ActorState? actor = null) : Actor {
     public ActiveActor? Vehicle { get; set; }
     public ReplicatedBoost? ReplicatedBoost { get; set; }
     public byte Amount { get; set; }
