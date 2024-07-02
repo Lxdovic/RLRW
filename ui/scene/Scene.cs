@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Numerics;
 using ImGuiNET;
 using Raylib_cs;
@@ -58,6 +59,31 @@ internal sealed class Scene {
         return playerTags;
     }
 
+    private List<(Vector2, string, Color)> RenderBoosts() {
+        var boostTags = new List<(Vector2, string, Color)>();
+        var frame = Program.Game!.Frames[Program.Game.FrameIndex];
+
+        foreach (var (id, boost) in frame.BoostActors) {
+            if (boost.ReplicatedBoost == null || boost.Vehicle == null) continue;
+            
+            var car = frame.CarActors[boost.Vehicle.ActorId];
+            var color = car.TeamPaint?.TeamNumber switch {
+                0 => Color.Blue,
+                1 => Color.Orange,
+                _ => Color.White
+            };
+            
+            var boostAmount = boost.ReplicatedBoost.BoostAmount;
+            
+            boostTags.Add((
+                Raylib.GetWorldToScreen(car.Position + new Vector3(0, 1, 0), _camera),
+                ((int)(boostAmount / 2.55)).ToString(CultureInfo.InvariantCulture), color));
+        }
+
+        return boostTags;
+;
+    }
+
     private void RenderBalls() {
         var frame = Program.Game!.Frames[Program.Game.FrameIndex];
 
@@ -89,23 +115,28 @@ internal sealed class Scene {
 
         RenderBalls();
         var playerTags = RenderPlayers();
+        var boostTags = RenderBoosts();
 
         Raylib.DrawGrid(50, 4);
         Raylib.EndMode3D();
 
         foreach (var (pos, text, color) in playerTags) {
-            var textSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), text, 20, 0);
-            var minWidth = 50f;
+            var textSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), text + "w", 20, 0);
             var rect = new Rectangle(
-                pos.X - Math.Max(minWidth, textSize.X) / 2 - 20,
-                pos.Y - textSize.Y - 5,
-                Math.Max(minWidth, textSize.X) + 40,
-                textSize.Y + 10
+                pos.X - textSize.X / 2 - 10,
+                pos.Y - textSize.Y,
+                textSize.X + 20,
+                textSize.Y
             );
 
             Raylib.DrawRectangleRounded(rect, 0.25f, 4, color);
             Raylib.DrawRectangleRoundedLines(rect, 0.25f, 4, 2, Color.White);
             Raylib.DrawText(text, (int)pos.X - (int)textSize.X / 2, (int)pos.Y - (int)textSize.Y, 20, Color.White);
+        }
+
+        foreach (var (pos, text, color) in boostTags) {
+            var textSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), text, 20, 0);
+            Raylib.DrawText(text, (int)pos.X - (int)textSize.X / 2, (int)pos.Y - (int)textSize.Y * 2, 20, Color.White);
         }
 
         Raylib.EndTextureMode();
