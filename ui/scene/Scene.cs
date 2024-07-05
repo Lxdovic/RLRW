@@ -99,7 +99,7 @@ internal sealed class Scene {
             if (_ballPositionHistory.LastOrDefault() != ball.Position)
                 _ballPositionHistory.Add(ball.Position);
 
-            if (_ballPositionHistory.Count > ball.LinearVelocity.Length() / 100) _ballPositionHistory.RemoveAt(0);
+            if (_ballPositionHistory.Count > 15) _ballPositionHistory.RemoveAt(0);
 
             for (var i = 0; i < _ballPositionHistory.Count - 1; i++)
                 Raylib.DrawLine3D(_ballPositionHistory[i], _ballPositionHistory[i + 1], color);
