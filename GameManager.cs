@@ -15,6 +15,7 @@ internal sealed class Frame {
         PlayerActors = CloneActors(frame.PlayerActors);
         GameActors = CloneActors(frame.GameActors);
         CameraSettingsActors = CloneActors(frame.CameraSettingsActors);
+        NetModeActors = CloneActors(frame.NetModeActors);
     }
 
     public double Time { get; set; }
@@ -24,6 +25,9 @@ internal sealed class Frame {
     public Dictionary<int, PlayerActor> PlayerActors { get; set; } = [];
     public Dictionary<int, GameActor> GameActors { get; set; } = [];
     public Dictionary<int, CameraSettingsActor> CameraSettingsActors { get; set; } = [];
+    public Dictionary<int, NetModeActor> NetModeActors { get; set; } = [];
+    public Dictionary<int, VehiclePickupBoostActor> VehiclePickupBoostActors { get; set; } = [];
+    public Dictionary<int, SoccarActor> SoccarActors { get; set; } = [];
 
     private Dictionary<int, T> CloneActors<T>(Dictionary<int, T> actors) where T : Actor {
         return actors.ToDictionary(entry => entry.Key, entry => (T)entry.Value.Clone());
@@ -72,6 +76,15 @@ internal sealed class GameManager(Replay replay) {
                         case "TAGame.CarComponent_Boost_TA":
                             parsedFrame.BoostActors.TryAdd(actorId, new BoostActor());
                             break;
+                        case "ProjectX.NetModeReplicator_X":
+                            parsedFrame.NetModeActors.TryAdd(actorId, new NetModeActor(actor));
+                            break;
+                        case "TAGame.VehiclePickup_Boost_TA":
+                            parsedFrame.VehiclePickupBoostActors.TryAdd(actorId, new VehiclePickupBoostActor());
+                            break;
+                        case "TAGame.GameEvent_Soccar_TA":
+                            parsedFrame.SoccarActors.TryAdd(actorId, new SoccarActor());
+                            break;
 
                         default:
                             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -88,6 +101,9 @@ internal sealed class GameManager(Replay replay) {
                     HandleGameEvents(parsedFrame.PlayerActors, actorId, actor);
                     HandleGameEvents(parsedFrame.GameActors, actorId, actor);
                     HandleGameEvents(parsedFrame.CameraSettingsActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.NetModeActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.VehiclePickupBoostActors, actorId, actor);
+                    HandleGameEvents(parsedFrame.SoccarActors, actorId, actor);
                 }
 
                 if (actor.State == ActorStateState.Deleted) {
@@ -98,6 +114,10 @@ internal sealed class GameManager(Replay replay) {
                     if (parsedFrame.GameActors.ContainsKey(actorId)) parsedFrame.GameActors.Remove(actorId);
                     if (parsedFrame.CameraSettingsActors.ContainsKey(actorId))
                         parsedFrame.CameraSettingsActors.Remove(actorId);
+                    if (parsedFrame.NetModeActors.ContainsKey(actorId)) parsedFrame.NetModeActors.Remove(actorId);
+                    if (parsedFrame.VehiclePickupBoostActors.ContainsKey(actorId))
+                        parsedFrame.VehiclePickupBoostActors.Remove(actorId);
+                    if (parsedFrame.SoccarActors.ContainsKey(actorId)) parsedFrame.SoccarActors.Remove(actorId);
                 }
             }
 
@@ -109,7 +129,6 @@ internal sealed class GameManager(Replay replay) {
 
     public void TryNextFrame(double time) {
         if (FrameIndex >= Replay.Frames.Count - 1 || FrameIndex < 0) return;
-
         if (Replay.Frames[FrameIndex].Time < time / 1000) FrameIndex++;
     }
 }

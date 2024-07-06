@@ -6,8 +6,10 @@ internal sealed class MapScoreboardActor(ActorState? actor = null) : Actor {
     public override void HandleGameEvents(ActorStateProperty property) {
         switch (property.PropertyName) {
             default:
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(
-                    $"Unhandled property: {property.PropertyName} for object ball (TAGame.Ball_TA); data: {property.Data}");
+                    $"Unhandled property: {property.PropertyName} MapScoreboardActor; data: {property.Data}");
+                Console.ResetColor();
                 break;
         }
     }
