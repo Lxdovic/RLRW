@@ -110,7 +110,7 @@ internal sealed class Scene {
         if (Program.Game == null) return;
 
         Raylib.BeginTextureMode(_viewTexture);
-        Raylib.ClearBackground(new Color(0, 0, 0, 0));
+        Raylib.ClearBackground(new Color(0, 100, 100, 255));
         Raylib.BeginMode3D(_camera);
 
         RenderBalls();
